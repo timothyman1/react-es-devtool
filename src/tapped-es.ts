@@ -36,6 +36,8 @@ export type SseEvents = {
 
 // ponytail: the devtools bus mounts lazily and EventClient drops everything after
 // 5 failed connect retries; 1s apart gives a cold `next dev` compile ~5s.
+// The annotation is required: without it the .d.ts emit fails with TS2883.
+// oxlint-disable-next-line typescript/consistent-generic-constructors
 export const eventClient: EventClient<SseEvents> = /* @__PURE__ */ new EventClient({
   pluginId: 'event-source',
   reconnectEveryMs: 1000
