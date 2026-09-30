@@ -1,0 +1,53 @@
+/* The panel renders inside the host page, so its CSS must not touch the host
+   and the host's CSS must not override it:
+   - `prefix(es)`: utilities are `es:flex`, variables `--es-*`, so no class or
+     variable is shared with the host's own Tailwind (or anything else).
+   - No preflight, since a global reset would restyle the host app. A scoped
+     stand-in lives below.
+   - Reset and utilities are unlayered: unlayered host CSS (Tailwind v3's
+     preflight sets `button { background-color: transparent }`) beats every
+     @layer. Unlayered, `.es-root` wins on specificity. The prefix keeps this
+     from leaking out: no host element carries an `es:` class. */
+@import "tailwindcss/theme.css" layer(theme) prefix(es);
+
+/* Tailwind emits these on :root as --es-color-* and generates the utilities
+   (`es:bg-bg`, `es:text-muted`). Dark values match the devtools shell's
+   default theme. */
+@theme {
+  --color-bg: hsl(223 17% 8%);
+  --color-fg: hsl(220 13% 91%);
+  --color-muted: hsl(218 11% 65%);
+  --color-border: hsl(0 0% 45% / 0.2);
+  --color-hover: hsl(0 0% 45% / 0.05);
+  --color-active: hsl(0 0% 45% / 0.2);
+  --color-selected: hsl(232, 38%, 16%);
+  --color-ok: hsl(142 71% 45%);
+  --color-error: hsl(0 84% 60%);
+}
+
+.es-root[data-es-theme="light"] {
+  --es-color-bg: hsl(0 0% 100%);
+  --es-color-fg: hsl(221 39% 11%);
+  --es-color-muted: hsl(220 9% 46%);
+}
+
+/* Specificity (0,1,0), same as a utility, so utilities (emitted at the end of
+   the file) win over the reset. Hence `:where(button)`, not `button`. */
+.es-root *,
+.es-root ::before,
+.es-root ::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border: 0 solid;
+}
+
+.es-root :where(button) {
+  font: inherit;
+  color: inherit;
+  background: none;
+  cursor: pointer;
+}
+
+/* Last, so utilities beat the equal-specificity reset above. */
+@tailwind utilities;

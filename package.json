@@ -1,0 +1,39 @@
+{
+  "name": "event-source-devtool",
+  "version": "0.1.0",
+  "description": "TanStack Devtools plugin that records EventSource and fetch SSE streams",
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/event-source.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "vite build && tsc -p tsconfig.lib.json",
+    "typecheck": "tsc --noEmit",
+    "lint": "oxlint",
+    "prepublishOnly": "pnpm build",
+    "format": "oxfmt"
+  },
+  "dependencies": {
+    "@tanstack/devtools-event-client": "^0.5.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/node": "^24.13.3",
+    "@types/react": "^19.2.18",
+    "oxfmt": "^0.71.0",
+    "oxlint": "^1.81.0",
+    "react": "^19.2.8",
+    "tailwindcss": "^4.3.3",
+    "typescript": "~6.0.2",
+    "vite": "^8.3.0"
+  },
+  "peerDependencies": {
+    "react": ">=19"
+  }
+}
