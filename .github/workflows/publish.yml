@@ -15,7 +15,7 @@ jobs:
         with:
           node-version: 24 # ships npm >= 11.5.1, needed for OIDC
           registry-url: https://registry.npmjs.org
-          cache: pnpm
+          # no cache: a poisoned cache would run with id-token: write
       - run: pnpm install --frozen-lockfile
       - run: pnpm typecheck && pnpm lint
       - name: Check tag matches package.json version
