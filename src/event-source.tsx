@@ -4,7 +4,14 @@ import { type ReactNode, useEffect, useState, useSyncExternalStore } from 'react
 
 import css from './index.css?inline';
 
-import { eventClient, installTap, type SseEvents, TAB_ID, type Transport } from './tapped-es';
+import {
+  duration,
+  eventClient,
+  installTap,
+  type SseEvents,
+  TAB_ID,
+  type Transport
+} from './tapped-es';
 
 type Kind = keyof SseEvents;
 type RefKeys = 'streamId' | 'url' | 'transport';
@@ -27,16 +34,28 @@ const MAX_ROWS = 500;
 // Kept on a global so a hot reload (Vite HMR, a Next rebuild of the linked
 // package) re-runs this module without losing the recorded streams.
 const STATE = Symbol.for('event-source-devtool');
-type State = { streams: Map<string, Stream>; rowKey: number; off?: () => void };
+// The notify side lives here too: a panel from an earlier run must still hear
+// records made by the run that now owns the bus subscriptions.
+type State = {
+  streams: Map<string, Stream>;
+  rowKey: number;
+  listeners: Set<() => void>;
+  version: number;
+  frame: number;
+  off?: () => void;
+};
 const g = globalThis as typeof globalThis & { [STATE]?: State };
 // `@__PURE__` lets a production build drop the store along with the panel.
 const state = /* @__PURE__ */ initState();
 function initState(): State {
-  return (g[STATE] ??= { streams: new Map(load()), rowKey: 0 });
+  return (g[STATE] ??= {
+    streams: new Map(load()),
+    rowKey: 0,
+    listeners: new Set(),
+    version: 0,
+    frame: 0
+  });
 }
-const listeners = new Set<() => void>();
-let version = 0;
-let frame = 0;
 
 function load(): [string, Stream][] {
   try {
@@ -50,10 +69,10 @@ const isClosed = (s: Stream) => s.rows.at(-1)?.kind === 'close';
 
 // Batched to one render per frame; a busy logs stream can emit hundreds/sec.
 function notify() {
-  version += 1;
-  frame ||= requestAnimationFrame(() => {
-    frame = 0;
-    listeners.forEach((l) => l());
+  state.version += 1;
+  state.frame ||= requestAnimationFrame(() => {
+    state.frame = 0;
+    state.listeners.forEach((l) => l());
   });
 }
 
@@ -133,8 +152,8 @@ function clear() {
 }
 
 const subscribe = (l: () => void) => {
-  listeners.add(l);
-  return () => listeners.delete(l);
+  state.listeners.add(l);
+  return () => state.listeners.delete(l);
 };
 
 const time = (t: number) =>
@@ -157,6 +176,30 @@ function status(s: Stream) {
     : { dot: '✕', color: 'es:text-muted' };
 }
 
+const size = (b: number) => (b < 1024 ? `${b} B` : `${(b / 1024).toFixed(1)} KB`);
+
+// Under an error close: the error body, the circumstances of the drop and a guess at why.
+function closeContext(row: Row) {
+  if (row.kind !== 'close' || row.reason !== 'error') return null;
+  const facts = [
+    row.after !== undefined && `after ${duration(row.after)}`,
+    row.idle !== undefined && `idle ${duration(row.idle)}`,
+    row.after !== undefined && `${row.messages ?? 0} msgs / ${size(row.bytes ?? 0)}`,
+    row.midEvent && 'cut mid-event',
+    row.offline && 'offline',
+    row.hidden && 'tab hidden'
+  ]
+    .filter(Boolean)
+    .join(' · ');
+  return (
+    <>
+      {row.body && <div className="es:break-all es:pl-4 es:text-muted">{row.body}</div>}
+      {facts && <div className="es:pl-4 es:text-muted">{facts}</div>}
+      {row.hint && <div className="es:pl-4">→ {row.hint}</div>}
+    </>
+  );
+}
+
 function RowView({ row }: { row: Row }) {
   const [pretty, setPretty] = useState(false);
 
@@ -168,6 +211,7 @@ function RowView({ row }: { row: Row }) {
         className={`es:border-y es:border-border es:px-2 es:py-1 ${row.kind === 'close' && row.reason === 'error' ? 'es:text-error' : 'es:text-muted'}`}
       >
         {time(row.t)} ── {row.kind} {detail}
+        {closeContext(row)}
       </div>
     );
   }
@@ -299,6 +343,7 @@ function TableView({ rows }: { rows: Row[] }) {
                   ── {row.kind}{' '}
                   {row.kind === 'close' &&
                     [row.reason, row.status, row.error].filter(Boolean).join(' · ')}
+                  {closeContext(row)}
                 </td>
               )}
             </tr>
@@ -314,8 +359,8 @@ type Props = { theme?: 'light' | 'dark' };
 function Panel({ theme = 'dark' }: Props) {
   useSyncExternalStore(
     subscribe,
-    () => version,
-    () => version
+    () => state.version,
+    () => state.version
   );
   const [selectedId, setSelectedId] = useState<string>();
   const [variant, setVariant] = useState<'normal' | 'table'>('table');
