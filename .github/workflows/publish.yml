@@ -1,0 +1,25 @@
+name: Publish
+on:
+  release:
+    types: [published]
+permissions:
+  contents: read
+  id-token: write # OIDC for npm trusted publishing + provenance
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4 # version from packageManager
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24 # ships npm >= 11.5.1, needed for OIDC
+          registry-url: https://registry.npmjs.org
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck && pnpm lint
+      - name: Check tag matches package.json version
+        run: |
+          want="v$(node -p 'require("./package.json").version')"
+          test "$GITHUB_REF_NAME" = "$want" || { echo "::error::release tag $GITHUB_REF_NAME != $want; run npm version first"; exit 1; }
+      - run: npm publish # prepublishOnly runs pnpm build

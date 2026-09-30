@@ -9,6 +9,7 @@ Package manager is pnpm.
 - `pnpm build` runs `vite build` (library mode, entry `src/event-source.tsx` → `dist/index.js`) and then `tsc -p tsconfig.lib.json`, which emits only `.d.ts` files.
 - `pnpm typecheck` runs `tsc --noEmit` over `src` and `vite.config.ts`.
 - `pnpm lint` runs oxlint.
+- Release: `npm version patch|minor|major`, `git push --follow-tags`, then `gh release create vX.Y.Z --generate-notes`. Publishing the release runs `.github/workflows/publish.yml`, which publishes to npm via trusted publishing (OIDC, no token). The workflow fails if the tag doesn't match `package.json`.
 
 There is no test runner and no demo page. To try a change, link the package into a host app and run `pnpm exec vite build --watch`.
 
