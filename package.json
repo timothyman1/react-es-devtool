@@ -1,6 +1,6 @@
 {
   "name": "react-es-devtool",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "TanStack Devtools plugin that records EventSource and fetch SSE streams",
   "keywords": [
     "devtools",
