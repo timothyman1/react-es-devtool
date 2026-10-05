@@ -1,14 +1,14 @@
-# event-source-devtool
+# react-es-devtool
 
 A [TanStack Devtools](https://tanstack.com/devtools) plugin that records Server-Sent Events streams, from both `EventSource` and `fetch` responses with `text/event-stream`.
 
 ```sh
-pnpm add -D event-source-devtool
+pnpm add -D react-es-devtool
 ```
 
 ```tsx
 import { TanStackDevtools } from '@tanstack/react-devtools'
-import { EventSourcePanel } from 'event-source-devtool'
+import { EventSourcePanel } from 'react-es-devtool'
 
 <TanStackDevtools plugins={[{ name: 'EventSource', render: <EventSourcePanel /> }]} />
 ```

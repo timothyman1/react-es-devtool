@@ -1,6 +1,6 @@
 ## What this is
 
-A TanStack Devtools plugin (published as `event-source-devtool`) that records Server-Sent Events streams, both from `EventSource` and from `fetch` responses with `text/event-stream`, and shows them in a panel. The only public export is `EventSourcePanel` from `src/event-source.tsx`.
+A TanStack Devtools plugin (published as `react-es-devtool`) that records Server-Sent Events streams, both from `EventSource` and from `fetch` responses with `text/event-stream`, and shows them in a panel. The only public export is `EventSourcePanel` from `src/event-source.tsx`.
 
 ## Commands
 

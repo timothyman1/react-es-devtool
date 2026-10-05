@@ -1,5 +1,5 @@
 {
-  "name": "event-source-devtool",
+  "name": "react-es-devtool",
   "version": "0.1.0",
   "description": "TanStack Devtools plugin that records EventSource and fetch SSE streams",
   "keywords": [
@@ -10,13 +10,13 @@
     "sse",
     "tanstack"
   ],
-  "homepage": "https://github.com/timothyman1/event-source-devtool#readme",
-  "bugs": "https://github.com/timothyman1/event-source-devtool/issues",
+  "homepage": "https://github.com/timothyman1/react-es-devtool#readme",
+  "bugs": "https://github.com/timothyman1/react-es-devtool/issues",
   "license": "MIT",
   "author": "a.sedov",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/timothyman1/event-source-devtool.git"
+    "url": "git+https://github.com/timothyman1/react-es-devtool.git"
   },
   "files": [
     "dist"
