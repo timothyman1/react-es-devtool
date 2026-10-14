@@ -1,4 +1,6 @@
 # react-es-devtool
+[![npm](https://img.shields.io/npm/v/react-es-devtool)](https://www.npmjs.com/package/react-es-devtool)
+[![downloads](https://img.shields.io/npm/dm/react-es-devtool)](https://www.npmjs.com/package/react-es-devtool)
 
 A [TanStack Devtools](https://tanstack.com/devtools) plugin that records Server-Sent Events streams, from both `EventSource` and `fetch` responses with `text/event-stream`.
 
