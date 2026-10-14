@@ -13,4 +13,4 @@ import { EventSourcePanel } from 'react-es-devtool'
 <TanStackDevtools plugins={[{ name: 'EventSource', render: <EventSourcePanel /> }]} />
 ```
 
-It only runs when `NODE_ENV` is `development`. In production builds it's a no-op and gets tree-shaken. Requires React 19 or later.
+It only runs when `NODE_ENV` is `development`. In production builds it's a no-op and gets tree-shaken. Requires React 18 or later.
